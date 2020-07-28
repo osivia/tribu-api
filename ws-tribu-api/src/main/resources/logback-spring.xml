@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<timestamp key="byDay" datePattern="yyyyMM" />
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>
+				%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n
+			</Pattern>
+		</layout>
+	</appender>
+	<root level="INFO">
+		<appender-ref ref="STDOUT" />
+	</root>
+
+	<springProfile name="!dev">
+
+		<appender name="tribu-api-global" class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<file>/var/log/tomcat/tribu-api.log </file>
+			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<fileNamePattern>/var/log/tomcat/archived/tribu-api-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+				<maxHistory>07</maxHistory>
+			</rollingPolicy>
+			<encoder>
+				<pattern>%d %-5level %msg%n</pattern>
+			</encoder>
+		</appender>
+		
+		<logger name="tribu.api" level="INFO"
+			additivity="false">
+			<appender-ref ref="tribu-api-global" />
+		</logger>
+
+		<appender name="tribu-api-stacks" class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<file>/var/log/tomcat/tribu-api_stacktraces.log </file>
+			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<fileNamePattern>/var/log/tomcat/archived/tribu-api_stacktraces-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+				<maxHistory>07</maxHistory>
+			</rollingPolicy>
+			<encoder>
+				<pattern>%d %-5level %msg%n</pattern>
+			</encoder>
+		</appender>
+		
+		<logger name="tribu.api-stacktraces" level="INFO"
+			additivity="false">
+			<appender-ref ref="tribu-api-stacks" />
+		</logger>
+
+	</springProfile>
+</configuration>

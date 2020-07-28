@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context>
+	<Parameter name="nuxeo.privateHost" value="nuxeo" />
+	<Parameter name="nuxeo.privatePort" value="8080" />
+	<Parameter name="nuxeo.secretKey" value="secretKey=" />
+	
+	<Parameter name="portal.url" value="https://tribu.local" />
+</Context>
