@@ -16,7 +16,7 @@
 
  
     <scm>
-        <url>https://github.com/osivia/tribu-api.git</url>
+        <url>https://github.com/osivia/tribu-api</url>
         <connection>scm:git:ssh://git@github.com/osivia/tribu-api.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/osivia/tribu-api.git</developerConnection>     
         <tag>HEAD</tag>
