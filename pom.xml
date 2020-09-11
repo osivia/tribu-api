@@ -16,9 +16,9 @@
 
  
     <scm>
-        <url>https://github.com/osivia/foad-api.git</url>
-        <connection>scm:git:ssh://git@github.com/osivia/foad-api.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/osivia/foad-api.git</developerConnection>     
+        <url>https://github.com/osivia/tribu-api.git</url>
+        <connection>scm:git:ssh://git@github.com/osivia/tribu-api.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/osivia/tribu-api.git</developerConnection>     
         <tag>HEAD</tag>
 	</scm>
     
