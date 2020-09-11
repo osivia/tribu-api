@@ -17,9 +17,9 @@
 	<springProfile name="!dev">
 
 		<appender name="tribu-api-global" class="ch.qos.logback.core.rolling.RollingFileAppender">
-			<file>/var/log/tomcat/tribu-api.log </file>
+			<file>${catalina.base}/logs/tribu-api.log </file>
 			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-				<fileNamePattern>/var/log/tomcat/archived/tribu-api-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+				<fileNamePattern>${catalina.base}/logs/tribu-api-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
 				<maxHistory>07</maxHistory>
 			</rollingPolicy>
 			<encoder>
@@ -33,9 +33,9 @@
 		</logger>
 
 		<appender name="tribu-api-stacks" class="ch.qos.logback.core.rolling.RollingFileAppender">
-			<file>/var/log/tomcat/tribu-api_stacktraces.log </file>
+			<file>${catalina.base}/logs/tribu-api_stacktraces.log </file>
 			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-				<fileNamePattern>/var/log/tomcat/archived/tribu-api_stacktraces-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
+				<fileNamePattern>${catalina.base}/logs/tribu-api_stacktraces-%d{yyyy-MM-dd}.log.gz</fileNamePattern>
 				<maxHistory>07</maxHistory>
 			</rollingPolicy>
 			<encoder>

@@ -37,7 +37,7 @@ public class ContentServiceImpl implements ContentService {
 	public TribuApiResponse search(SearchForm search) throws RepositoryException, ContentServiceException {
 		
 		NuxeoCommand command = context.getBean(SearchCommand.class, search);
-		PaginableDocuments searchResults = (PaginableDocuments) repo.executeCommand(search.getUser(), command);
+		PaginableDocuments searchResults = (PaginableDocuments) repo.executeCommand(search.getAppId(), command);
 		
 		
 		List<ContentDto> docs = new ArrayList<ContentDto>();
@@ -75,7 +75,7 @@ public class ContentServiceImpl implements ContentService {
 	public DownloadUrlResponse download(DownloadForm dlForm) throws RepositoryException, ContentServiceException {
 		
 		NuxeoCommand command = context.getBean(GetDocumentCommand.class, dlForm);
-		PaginableDocuments searchResults = (PaginableDocuments) repo.executeCommand(dlForm.getUser(), command);
+		PaginableDocuments searchResults = (PaginableDocuments) repo.executeCommand(dlForm.getAppId(), command);
 
 		List<ContentDto> docs = new ArrayList<ContentDto>(1);
 		for(Document result : searchResults) {

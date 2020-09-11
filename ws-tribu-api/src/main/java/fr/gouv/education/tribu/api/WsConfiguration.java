@@ -13,6 +13,7 @@ import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
 
 import com.google.common.collect.Lists;
 
@@ -37,6 +38,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  */
 @Configuration
 @ComponentScan(basePackages = { "fr.gouv.education.tribu.api" })
+@ImportResource({"file:${catalina.base}/conf/api-users.xml"})
 @EnableSwagger2
 public class WsConfiguration implements ApplicationContextAware {
 
