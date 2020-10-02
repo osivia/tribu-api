@@ -29,23 +29,11 @@ import io.swagger.annotations.ApiResponses;
 @RequestMapping("/contents")
 @Api(value = "Contents")
 public class SearchController extends AbstractWsController {
-//
-//	private static final String THUMBNAIL = "/thumbnail";
+
 
 	private static final String SEARCH = "/search";
 	private static final String DOWNLOAD = "/download";
-//
-//	private static final String SPONSORLINKS = "/sponsorlinks";
-//
-//	private static final String SHAREDWITHME = "/sharedwithme";
-//
-//	private static final String PORTALSITES = "/portalsites";
-//
-//	private static final String TRISKELL = "/triskell";
-//
-//	private static final String WORKSPACES = "/workspaces";
-//
-//	private static final String USERWORKSPACES = "/userworkspaces";
+
 	
 	@Autowired
 	private ContentService contentService;
@@ -148,56 +136,6 @@ public class SearchController extends AbstractWsController {
 		}
 
 	}	
-	
-//	/**
-//	 * Get thumbnail
-//	 * 
-//	 * @param request
-//	 * @param response
-//	 * @param user
-//	 * @param principal
-//	 * @return
-//	 */
-//	@ApiOperation(value = "Récupère une vignette")
-//	@ApiResponses(value = { @ApiResponse(code = 200, message = "Recherche ok"),
-//			@ApiResponse(code = 204, message = "Aucun résultat"), @ApiResponse(code = 400, message = "Erreur"),
-//			@ApiResponse(code = 500, message = "Erreur interne") })
-//	@GetMapping(value = "/{user}/{docUuid}/thumbnail", produces = "image/jpeg")
-//	public byte[] getUserWorkspaces(HttpServletRequest request, HttpServletResponse response,
-//			@ApiParam(value = "Utilisateur", required = true) @PathVariable String user, 
-//			@ApiParam(value = "Document", required = true) @PathVariable String docUuid,
-//			Principal principal) {
-//
-//		long startTime = System.currentTimeMillis();
-//		
-//		if (user == null) {
-//			logAndReturn(null, THUMBNAIL, "?", startTime, ContentErrorCode.WARN_WRONG_PARAMETER, "user");
-//			return null;
-//
-//		} else if (docUuid == null) {
-//			logAndReturn(null, THUMBNAIL, "?", startTime, ContentErrorCode.WARN_WRONG_PARAMETER, "docUuid");
-//			return null;	
-//
-//		} else {
-//				
-//			byte[] thumbnail;
-//			try {
-//				thumbnail = contentService.getThumbnail(user, docUuid);
-//			} catch (RepositoryException e) {
-//				logStackAndReturn(e, THUMBNAIL, user, startTime, ContentErrorCode.ERROR_BACKEND);
-//				return null;	
-//
-//
-//			} catch (ContentServiceException e) {
-//				logStackAndReturn(e, THUMBNAIL, user, startTime, ContentErrorCode.ERROR_TECH);
-//				return null;	
-//			}
-//			
-//			
-//			return thumbnail;
-//			
-//		}
-//		
-//	}
+
 
 }

@@ -7,4 +7,6 @@
 	<Parameter name="portal.url" value="https://tribu.local/portal" />
 	<Parameter name="api.url" value="http://tribu.local:8080/ws-tribu-api" />
 	
+	<Parameter name="tribu.api.key" value="123456" />
+	
 </Context>

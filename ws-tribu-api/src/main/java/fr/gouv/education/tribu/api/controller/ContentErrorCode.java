@@ -19,6 +19,10 @@ public enum ContentErrorCode {
 	/** bad parameters */
 	WARN_WRONG_PARAMETER(LogLevel.WARN, "W02","%s est requis", HttpStatus.BAD_REQUEST),
 	
+	/** bad apiKey */
+	WARN_APIKEY(LogLevel.WARN, "W03","Clé API incorrecte", HttpStatus.FORBIDDEN),
+	WARN_MISSING_APIKEY(LogLevel.WARN, "W04","Header clé API manquant", HttpStatus.FORBIDDEN),
+	
 	/** error with repository */
 	ERROR_BACKEND(LogLevel.ERROR, "E01","Erreur d'accès aux données", HttpStatus.INTERNAL_SERVER_ERROR),
 	
