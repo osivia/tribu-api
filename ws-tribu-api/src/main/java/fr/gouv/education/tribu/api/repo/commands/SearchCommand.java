@@ -34,13 +34,13 @@ public class SearchCommand  extends NuxeoQueryCommand {
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM Document WHERE ");
         query.append(" ecm:mixinType <> 'HiddenInNavigation' AND ecm:currentLifeCycleState <> 'deleted'  AND ecm:isCheckedInVersion = 0");
+        query.append(" AND ecm:mixinType <> 'Folderish' ");
         query.append(" AND ecm:mixinType <> 'isLocalPublishLive'");
         
         // TODO adaptation 4.4
         if(StringUtils.isNotBlank(search.getFulltext())) {
-        	query.append(" /*+ES: ");
+        	query.append(" AND ecm:fulltext ILIKE '%"+search.getFulltext()+"%' ");
 
-        	query.append("FULLTEXT('").append(search.getFulltext()).append("') */");
         }
         
         if(StringUtils.isNotBlank(search.getTitle())) {

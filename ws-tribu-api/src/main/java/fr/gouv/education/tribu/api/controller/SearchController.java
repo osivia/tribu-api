@@ -30,9 +30,9 @@ import io.swagger.annotations.ApiResponses;
 @Api(value = "Contents")
 public class SearchController extends AbstractWsController {
 
-
-	private static final String SEARCH = "/search";
-	private static final String DOWNLOAD = "/download";
+	protected static final String CONTEXTE = "/contents";
+	private static final String SEARCH = CONTEXTE + "/search";
+	private static final String DOWNLOAD = CONTEXTE + "/download";
 
 	
 	@Autowired

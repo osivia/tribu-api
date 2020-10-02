@@ -1,7 +1,10 @@
 package fr.gouv.education.tribu.api.repo;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.nuxeo.ecm.automation.client.OperationRequest;
 import org.nuxeo.ecm.automation.client.Session;
+import org.nuxeo.ecm.automation.client.model.Documents;
 
 import fr.gouv.education.tribu.api.model.TribuApiQueryForm;
 
@@ -13,6 +16,9 @@ import fr.gouv.education.tribu.api.model.TribuApiQueryForm;
  *
  */
 public abstract class NuxeoQueryCommand implements NuxeoCommand {
+	
+	protected static final Log LOGGER = LogFactory.getLog("tribu-queries");
+	protected static final String LOG_SEPARATOR = " ";
 	
 	private static final String DEFAULT_SCHEMAS = "dublincore,toutatice";
 	
@@ -51,8 +57,17 @@ public abstract class NuxeoQueryCommand implements NuxeoCommand {
 	        request.set("pageSize", getPageSize());
 	        request.set("currentPageIndex", getPageNumber());
 
+	        
+	        long startTime = System.currentTimeMillis();
 	
 	        objects = request.execute();
+	        
+	        if(LOGGER.isDebugEnabled()) {
+	        	
+	        	LOGGER.debug(logMsg(request, objects, startTime));
+	        	
+	        	
+	        }
         }
         catch(Exception e) {
         	throw new RepositoryException("original request from "+this.getClass().getSimpleName()+" : "+getQuery().toString(), e);
@@ -60,6 +75,8 @@ public abstract class NuxeoQueryCommand implements NuxeoCommand {
         
         return objects;
 	}
+
+
 
 
 
@@ -83,6 +100,39 @@ public abstract class NuxeoQueryCommand implements NuxeoCommand {
 //        builder.append("/");
 //        builder.append(this.userName);
         return builder.toString();
+	}
+	
+	
+	
+	private String logMsg(OperationRequest request, Object objects, long startTime) {
+		long stopTime = System.currentTimeMillis();
+		long elapsedTime = stopTime - startTime;
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append(getId());
+		sb.append(LOG_SEPARATOR);
+		sb.append("user=");
+		sb.append(request.getSession().getLogin().getUsername());
+//		sb.append(request.getOperation());
+		sb.append(LOG_SEPARATOR);
+		sb.append(request.getHeaders());
+		sb.append(LOG_SEPARATOR);
+		sb.append(request.getParameters());
+		sb.append(LOG_SEPARATOR);
+		sb.append(objects);
+
+		if(objects instanceof Documents) {
+			sb.append(LOG_SEPARATOR);
+
+			Documents docs = (Documents) objects;
+			sb.append("resultCount=");
+			sb.append(docs.size());
+		}
+		sb.append(LOG_SEPARATOR);
+		sb.append("elasped=");
+		sb.append(elapsedTime);
+		
+		return sb.toString();
 	}
 	
 }

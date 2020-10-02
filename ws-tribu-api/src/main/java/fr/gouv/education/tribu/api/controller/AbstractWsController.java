@@ -27,7 +27,7 @@ public abstract class AbstractWsController {
 	protected static final Log STK_LOGGER = LogFactory.getLog("tribu.api-stacktraces");
 	
 	protected static final String LOG_SEPARATOR = " ";
-	protected static final String CONTEXTE = "/contents";
+
 	
 	@Autowired
 	protected ApplicationContext context;
@@ -141,8 +141,7 @@ public abstract class AbstractWsController {
 		
 		sb.append(user);
 		sb.append(LOG_SEPARATOR);		
-		
-		sb.append(CONTEXTE);
+
 		sb.append(query);
 		sb.append(LOG_SEPARATOR);
 		

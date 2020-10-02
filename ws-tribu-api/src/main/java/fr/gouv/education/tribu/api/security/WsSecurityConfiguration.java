@@ -13,7 +13,7 @@ import fr.gouv.education.tribu.api.WsConfiguration;
 @EnableWebSecurity
 public class WsSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-	@Value("${tribu.api.key")
+	@Value("${tribu.api.key}")
 	private String principalRequestValue;
 
 	@Override
