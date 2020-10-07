@@ -8,6 +8,7 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.nuxeo.ecm.automation.client.jaxrs.impl.HttpAutomationClient;
 import org.springframework.beans.BeansException;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
@@ -40,6 +41,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @ComponentScan(basePackages = { "fr.gouv.education.tribu.api" })
 @ImportResource({"file:${catalina.base}/conf/api-users.xml"})
 @EnableSwagger2
+@EnableCaching
 public class WsConfiguration implements ApplicationContextAware {
 
     public static final String AUTHORIZATION_HEADER = "Authorization";

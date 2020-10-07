@@ -20,6 +20,8 @@ import fr.gouv.education.tribu.api.repo.NuxeoRepo;
 import fr.gouv.education.tribu.api.repo.RepositoryException;
 import fr.gouv.education.tribu.api.repo.commands.GetDocumentCommand;
 import fr.gouv.education.tribu.api.repo.commands.SearchCommand;
+import fr.gouv.education.tribu.api.service.token.DownloadToken;
+import fr.gouv.education.tribu.api.service.token.DownloadTokenService;
 
 
 
@@ -29,7 +31,9 @@ public class ContentServiceImpl implements ContentService {
 	@Autowired
 	private ApplicationContext context;
 	
-
+	@Autowired
+	private DownloadTokenService tokenService;
+	
 	@Autowired
 	private NuxeoRepo repo;
 
@@ -55,16 +59,6 @@ public class ContentServiceImpl implements ContentService {
 		return response;
 	}
 
-	/**
-	 * Convert a nuxeo document to webservices dto 
-	 * 
-	 * @param document
-	 * @return
-	 * @throws ContentServiceException
-	 */
-	private ContentDto toDto(Document document) throws ContentServiceException {
-		return toDto(document, ContentDto.COMPONENT_NAME);
-	}
 	
 	private ContentDto toDto(Document document, String compomentName) throws ContentServiceException {
 		ContentDto dto = (ContentDto) context.getBean(compomentName);
@@ -73,6 +67,8 @@ public class ContentServiceImpl implements ContentService {
 
 	@Override
 	public DownloadUrlResponse download(DownloadForm dlForm) throws RepositoryException, ContentServiceException {
+		
+		
 		
 		NuxeoCommand command = context.getBean(GetDocumentCommand.class, dlForm);
 		PaginableDocuments searchResults = (PaginableDocuments) repo.executeCommand(dlForm.getAppId(), command);
@@ -86,10 +82,39 @@ public class ContentServiceImpl implements ContentService {
 		DownloadUrlResponse response = context.getBean(DownloadUrlResponse.class, docs);
 		
 		if(searchResults.size() > 0) {
+			
+			// == put in cache ==
+			DownloadToken tokenObject = context.getBean(DownloadToken.class);
+			tokenObject.setDocUuid(searchResults.get(0).getId());
+			tokenObject.setAppId(dlForm.getAppId());
+			tokenObject.setUser(dlForm.getUser());
+			
+			tokenService.putInCache(tokenObject);
 
-			response.toResponse();
+			response.toResponse(tokenObject.getToken());
 		}
 		
 		return response;
 	}
+
+	@Override
+    public boolean checkToken(String docUuid, String token) {
+    	
+   	
+    	boolean valid = false;
+    	
+    	DownloadToken tokenInCache = tokenService.getInCache(token);
+    	
+    	if(tokenInCache != null) {
+    		
+    		if(tokenInCache.getDocUuid().equals(docUuid)) {
+    			valid = true;
+    			tokenService.removeFromCache(token);
+    			
+    		}
+    	}
+    	
+    	return valid;
+    	
+    }
 }

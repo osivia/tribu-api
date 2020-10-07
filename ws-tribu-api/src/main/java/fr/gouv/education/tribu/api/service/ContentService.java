@@ -31,5 +31,14 @@ public interface ContentService {
 	 */
 	DownloadUrlResponse download(DownloadForm dlForm) throws RepositoryException, ContentServiceException;
 
+	/**
+	 * Check if the token given in url is valid
+	 * 
+	 * @param docUuid
+	 * @param token
+	 * @return
+	 */
+	boolean checkToken(String docUuid, String token);
+
 
 }

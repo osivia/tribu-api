@@ -62,7 +62,26 @@
 		<logger name="tribu-queries" level="DEBUG"
 			additivity="false">
 			<appender-ref ref="tribu-queries" />
-		</logger>		
+		</logger>
+	
+		<appender name="tribu-tokens"
+			class="ch.qos.logback.core.rolling.RollingFileAppender">
+			<file>${catalina.base}/logs/tribu-tokens.log </file>
+			<rollingPolicy
+				class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				<fileNamePattern>${catalina.base}/logs/tribu-tokens-%d{yyyy-MM-dd}.log.gz
+				</fileNamePattern>
+				<maxHistory>07</maxHistory>
+			</rollingPolicy>
+			<encoder>
+				<pattern>%d %-5level %msg%n</pattern>
+			</encoder>
+		</appender>
+	
+		<logger name="tribu-tokens" level="INFO" additivity="false">
+			<appender-ref ref="tribu-tokens" />
+		</logger>
+		
 
 	</springProfile>
 </configuration>
