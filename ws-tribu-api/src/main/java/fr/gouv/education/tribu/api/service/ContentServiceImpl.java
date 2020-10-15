@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import fr.gouv.education.tribu.api.model.BinaryContent;
 import fr.gouv.education.tribu.api.model.ContentDto;
 import fr.gouv.education.tribu.api.model.DownloadForm;
 import fr.gouv.education.tribu.api.model.DownloadUrlResponse;
@@ -18,6 +19,8 @@ import fr.gouv.education.tribu.api.model.TribuApiResponse;
 import fr.gouv.education.tribu.api.repo.NuxeoCommand;
 import fr.gouv.education.tribu.api.repo.NuxeoRepo;
 import fr.gouv.education.tribu.api.repo.RepositoryException;
+import fr.gouv.education.tribu.api.repo.commands.FileContentCommand;
+import fr.gouv.education.tribu.api.repo.commands.FileContentStreamCommand;
 import fr.gouv.education.tribu.api.repo.commands.GetDocumentCommand;
 import fr.gouv.education.tribu.api.repo.commands.SearchCommand;
 import fr.gouv.education.tribu.api.service.token.DownloadToken;
@@ -98,23 +101,36 @@ public class ContentServiceImpl implements ContentService {
 	}
 
 	@Override
-    public boolean checkToken(String docUuid, String token) {
-    	
-   	
-    	boolean valid = false;
-    	
+    public DownloadToken checkToken(String docUuid, String token) {
+    
     	DownloadToken tokenInCache = tokenService.getInCache(token);
     	
     	if(tokenInCache != null) {
     		
     		if(tokenInCache.getDocUuid().equals(docUuid)) {
-    			valid = true;
+    			
     			tokenService.removeFromCache(token);
+    			
+    			return tokenInCache;
     			
     		}
     	}
     	
-    	return valid;
+    	return null; // in case of errors
     	
     }
+
+
+	@Override
+	public BinaryContent startDownload(String uuid, String appId) throws RepositoryException {
+		
+		
+		NuxeoCommand command = context.getBean(FileContentCommand.class, uuid);
+		//NuxeoCommand command = context.getBean(FileContentStreamCommand.class, uuid);
+		
+		BinaryContent binaryContent = (BinaryContent) repo.executeCommand(appId, command);
+		
+		return binaryContent;
+		
+	}
 }

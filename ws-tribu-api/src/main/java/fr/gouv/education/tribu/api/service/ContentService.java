@@ -1,10 +1,12 @@
 package fr.gouv.education.tribu.api.service;
 
+import fr.gouv.education.tribu.api.model.BinaryContent;
 import fr.gouv.education.tribu.api.model.DownloadForm;
 import fr.gouv.education.tribu.api.model.DownloadUrlResponse;
 import fr.gouv.education.tribu.api.model.SearchForm;
 import fr.gouv.education.tribu.api.model.TribuApiResponse;
 import fr.gouv.education.tribu.api.repo.RepositoryException;
+import fr.gouv.education.tribu.api.service.token.DownloadToken;
 
 /**
  * 
@@ -38,7 +40,16 @@ public interface ContentService {
 	 * @param token
 	 * @return
 	 */
-	boolean checkToken(String docUuid, String token);
+	DownloadToken checkToken(String docUuid, String token);
+
+	/**
+	 * 
+	 * 
+	 * @param uuid
+	 * @param appId
+	 * @return
+	 */
+	BinaryContent startDownload(String uuid, String appId) throws RepositoryException;
 
 
 }

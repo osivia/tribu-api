@@ -17,10 +17,13 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.nuxeo.ecm.automation.client.LoginInfo;
+import org.nuxeo.ecm.automation.client.Session;
 import org.nuxeo.ecm.automation.client.adapters.BusinessServiceFactory;
 import org.nuxeo.ecm.automation.client.adapters.DocumentServiceFactory;
 import org.nuxeo.ecm.automation.client.jaxrs.spi.AbstractAutomationClient;
 import org.nuxeo.ecm.automation.client.jaxrs.spi.Connector;
+import org.nuxeo.ecm.automation.client.jaxrs.spi.StreamedSession;
 import org.nuxeo.ecm.automation.client.rest.api.RestClient;
 
 /**
@@ -100,4 +103,9 @@ public class HttpAutomationClient extends AbstractAutomationClient {
     public RestClient getRestClient() {
         return new RestClient(this);
     }
+    
+    protected Session createSession(final Connector connector, final LoginInfo login) {
+        return new StreamedSession(this, connector, login == null ? LoginInfo.ANONYNMOUS : login);
+    }
+    
 }
