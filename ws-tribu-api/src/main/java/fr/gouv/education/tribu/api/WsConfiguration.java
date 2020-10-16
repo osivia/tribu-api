@@ -20,6 +20,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.UrlResource;
 
@@ -47,6 +48,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @Configuration
 @ComponentScan(basePackages = { "fr.gouv.education.tribu.api" })
 @ImportResource({"file:${catalina.base}/conf/api-users.xml"})
+@PropertySource({"file:${catalina.base}/conf/application.properties"})
 @EnableSwagger2
 @EnableCaching
 public class WsConfiguration implements ApplicationContextAware {
