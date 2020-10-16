@@ -1,5 +1,6 @@
 package fr.gouv.education.tribu.api;
 
+import java.net.MalformedURLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -8,13 +9,19 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.nuxeo.ecm.automation.client.jaxrs.impl.HttpAutomationClient;
 import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.cache.ehcache.EhCacheCacheManager;
+import org.springframework.cache.ehcache.EhCacheManagerFactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.UrlResource;
 
 import com.google.common.collect.Lists;
 
@@ -99,6 +106,28 @@ public class WsConfiguration implements ApplicationContextAware {
 		
 		return pool;
     }
+    
+    
+    @Value("${catalina.home}")
+    private String catalinaHome;
+    
+    @Bean
+    public EhCacheManagerFactoryBean cacheFactoryBean() throws MalformedURLException {
+        EhCacheManagerFactoryBean ehCacheManagerFactoryBean = new EhCacheManagerFactoryBean();
+        ehCacheManagerFactoryBean.setConfigLocation(new UrlResource("file:"+catalinaHome+"/conf/ehcache-replicated.xml"));
+        return ehCacheManagerFactoryBean;
+    }
+
+    @Bean
+    public CacheManager cacheManager() {
+        EhCacheCacheManager cacheManager = new EhCacheCacheManager();
+        
+        EhCacheManagerFactoryBean cacheFactoryBean = applicationContext.getBean(EhCacheManagerFactoryBean.class);
+        
+        cacheManager.setCacheManager(cacheFactoryBean.getObject());
+        return cacheManager;
+    }
+    
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;

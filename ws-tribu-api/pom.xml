@@ -59,6 +59,7 @@
 		    <artifactId>spring-boot-starter-cache</artifactId>
 		</dependency>
 		
+		<!-- 
 		<dependency>
 		    <groupId>javax.cache</groupId>
 		    <artifactId>cache-api</artifactId>
@@ -66,7 +67,13 @@
 		<dependency>
 		    <groupId>org.ehcache</groupId>
 		    <artifactId>ehcache</artifactId>
-		</dependency>   		
+		</dependency>
+		 -->
+		 
+      <dependency>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache</artifactId>
+      </dependency>
 
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
