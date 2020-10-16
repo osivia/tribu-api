@@ -23,8 +23,11 @@ public class SearchCommand  extends NuxeoQueryCommand {
 	
 	private SearchForm search;
 
-	public SearchCommand(SearchForm search) {
+	private String workspacePath;
+
+	public SearchCommand(SearchForm search, String workspacePath) {
 		this.search = search;
+		this.workspacePath = workspacePath;
 		
 	}
 	
@@ -45,6 +48,10 @@ public class SearchCommand  extends NuxeoQueryCommand {
         
         if(StringUtils.isNotBlank(search.getTitle())) {
         	query.append(" AND dc:title ILIKE '%"+search.getTitle()+"%' ");
+        }
+        
+        if(StringUtils.isNotBlank(workspacePath)) {
+        	query.append(" AND ecm:path STARTSWITH '"+workspacePath+"' ");
         }
         
         if(search.getModificationBeginDate() != null && search.getModificationEndDate() != null) {

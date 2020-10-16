@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import fr.gouv.education.tribu.api.model.ApiUser;
+
 @Service
 public class NuxeoRepoImpl implements NuxeoRepo {
 
@@ -20,7 +22,7 @@ public class NuxeoRepoImpl implements NuxeoRepo {
 	
 	@Autowired
 	@Qualifier("appMap")
-	private Map<String, String> appMap;
+	private Map<String, ApiUser> appMap;
 
 	
 	@Autowired
@@ -30,7 +32,8 @@ public class NuxeoRepoImpl implements NuxeoRepo {
 		
 		HttpAutomationClient client = null;
 		
-		String userId = appMap.get(appId);
+		ApiUser user = appMap.get(appId);
+		String userId = user.getNuxeoUser();
 
 		
 		if(userId == null) {

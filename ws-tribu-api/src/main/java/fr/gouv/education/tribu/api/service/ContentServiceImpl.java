@@ -2,13 +2,16 @@ package fr.gouv.education.tribu.api.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.nuxeo.ecm.automation.client.model.Document;
 import org.nuxeo.ecm.automation.client.model.PaginableDocuments;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import fr.gouv.education.tribu.api.model.ApiUser;
 import fr.gouv.education.tribu.api.model.BinaryContent;
 import fr.gouv.education.tribu.api.model.ContentDto;
 import fr.gouv.education.tribu.api.model.DownloadForm;
@@ -39,14 +42,19 @@ public class ContentServiceImpl implements ContentService {
 	
 	@Autowired
 	private NuxeoRepo repo;
+	
+	@Autowired
+	@Qualifier("appMap")
+	private Map<String, ApiUser> appMap;	
 
 	@Override
 	public TribuApiResponse search(SearchForm search) throws RepositoryException, ContentServiceException {
 		
-		NuxeoCommand command = context.getBean(SearchCommand.class, search);
+		ApiUser apiUser = appMap.get(search.getAppId());
+		
+		NuxeoCommand command = context.getBean(SearchCommand.class, search, apiUser.getWorkspacePath());
 		PaginableDocuments searchResults = (PaginableDocuments) repo.executeCommand(search.getAppId(), command);
-		
-		
+				
 		List<ContentDto> docs = new ArrayList<ContentDto>();
 		for(Document result : searchResults) {
 			SearchContentDto dto = (SearchContentDto) toDto(result, SearchContentDto.COMPONENT_NAME);
