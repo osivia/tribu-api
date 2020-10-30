@@ -37,7 +37,7 @@ public class SearchCommand  extends NuxeoQueryCommand {
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM Document WHERE ");
         query.append(" ecm:mixinType <> 'HiddenInNavigation' AND ecm:currentLifeCycleState <> 'deleted'  AND ecm:isCheckedInVersion = 0");
-        query.append(" AND ecm:mixinType <> 'Folderish' ");
+        query.append(" AND ecm:mixinType = 'Downloadable' ");
         query.append(" AND ecm:mixinType <> 'isLocalPublishLive'");
         
         // TODO adaptation 4.4
