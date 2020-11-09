@@ -6,6 +6,7 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
+import org.apache.tomcat.util.digester.SetPropertiesRule;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -26,9 +27,12 @@ public class SearchCommand  extends NuxeoQueryCommand {
 	private String workspacePath;
 
 	public SearchCommand(SearchForm search, String workspacePath) {
+		
+		super(search);
+		
 		this.search = search;
 		this.workspacePath = workspacePath;
-		
+				
 	}
 	
 	@Override

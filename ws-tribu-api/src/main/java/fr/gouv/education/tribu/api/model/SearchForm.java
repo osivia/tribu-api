@@ -25,7 +25,7 @@ public class SearchForm extends TribuApiQueryForm {
 	
 	@ApiModelProperty(
 			  value = "tri par pertinence ou par date de modification",
-			  example = "RELEVANCE ou LAST_MODIFICATION")
+			  example = "relevance ou last-modification")
 	private SearchSort sort;
 
 	@ApiModelProperty(
