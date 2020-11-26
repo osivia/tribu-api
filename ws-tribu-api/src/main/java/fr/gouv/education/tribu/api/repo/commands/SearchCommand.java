@@ -1,6 +1,8 @@
 package fr.gouv.education.tribu.api.repo.commands;
 
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Iterator;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
@@ -42,12 +44,29 @@ public class SearchCommand  extends NuxeoQueryCommand {
         query.append("SELECT * FROM Document WHERE ");
         query.append(" ecm:mixinType <> 'HiddenInNavigation' AND ecm:currentLifeCycleState <> 'deleted'  AND ecm:isCheckedInVersion = 0");
         query.append(" AND ecm:mixinType = 'Downloadable' ");
-        query.append(" AND ecm:mixinType <> 'isLocalPublishLive'");
+        query.append(" AND ecm:mixinType <> 'isLocalPublishLive' ");
         
-        // TODO adaptation 4.4
         if(StringUtils.isNotBlank(search.getFulltext())) {
-        	query.append(" AND ecm:fulltext ILIKE '%"+search.getFulltext()+"%' ");
+        	
+            query.append(" AND ");
 
+        	
+            String[] keyWds = StringUtils.split(search.getFulltext());
+            Iterator<String> itKeyWords = Arrays.asList(keyWds).iterator();
+
+            while (itKeyWords.hasNext()) {
+                String keyWord = StringUtils.replace(itKeyWords.next(), "'", "\\'");
+
+                query.append("(ecm:fulltext = '");
+                query.append(keyWord);
+                query.append("' OR dc:title ILIKE '");
+                query.append(keyWord);
+                query.append("%')");
+
+                if (itKeyWords.hasNext()) {
+                	query.append(" AND ");
+                }
+            }
         }
         
         if(StringUtils.isNotBlank(search.getTitle())) {
