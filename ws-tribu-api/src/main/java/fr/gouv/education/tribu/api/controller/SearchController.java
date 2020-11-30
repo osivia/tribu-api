@@ -1,5 +1,7 @@
 package fr.gouv.education.tribu.api.controller;
 
+import java.util.concurrent.TimeUnit;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -119,12 +121,16 @@ public class SearchController extends AbstractWsController {
 
 				url = contentService.download(dlForm);
 				
-				
+				// let ehache synchronize the token to peers
+				TimeUnit.SECONDS.sleep(1);
 
 			} catch (RepositoryException e) {
 
 				return logStackAndReturn(e, DOWNLOAD, logUser, startTime, ContentErrorCode.ERROR_BACKEND);
 			} catch (ContentServiceException e) {
+
+				return logStackAndReturn(e, DOWNLOAD, logUser, startTime, ContentErrorCode.ERROR_TECH);
+			} catch (InterruptedException e) {
 
 				return logStackAndReturn(e, DOWNLOAD, logUser, startTime, ContentErrorCode.ERROR_TECH);
 			}
