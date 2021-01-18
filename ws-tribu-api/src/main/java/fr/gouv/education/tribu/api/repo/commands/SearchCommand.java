@@ -1,5 +1,6 @@
 package fr.gouv.education.tribu.api.repo.commands;
 
+import java.text.Normalizer;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
@@ -49,17 +50,23 @@ public class SearchCommand  extends NuxeoQueryCommand {
         if(StringUtils.isNotBlank(search.getFulltext())) {
         	
             query.append(" AND ");
-
+            
+        	// Remove accents in search query
+        	String searchStr = Normalizer.normalize(search.getFulltext(), Normalizer.Form.NFD);
+        	searchStr = searchStr.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+        	// Remove special chars
+        	searchStr = searchStr.replaceAll("[^A-Za-z0-9 ]", " ");
         	
-            String[] keyWds = StringUtils.split(search.getFulltext());
+            String[] keyWds = StringUtils.split(searchStr);
             Iterator<String> itKeyWords = Arrays.asList(keyWds).iterator();
 
             while (itKeyWords.hasNext()) {
-                String keyWord = StringUtils.replace(itKeyWords.next(), "'", "\\'");
-
+                //String keyWord = StringUtils.replace(itKeyWords.next(), "'", "\\'");
+            	String keyWord = itKeyWords.next();
+            	
                 query.append("(ecm:fulltext = '");
                 query.append(keyWord);
-                query.append("' OR dc:title ILIKE '");
+                query.append("' OR dc:title ILIKE '%");
                 query.append(keyWord);
                 query.append("%')");
 
@@ -70,7 +77,32 @@ public class SearchCommand  extends NuxeoQueryCommand {
         }
         
         if(StringUtils.isNotBlank(search.getTitle())) {
-        	query.append(" AND dc:title ILIKE '%"+search.getTitle()+"%' ");
+        	
+            query.append(" AND ");
+            
+        	// Remove accents in search query
+        	String titleStr = Normalizer.normalize(search.getTitle(), Normalizer.Form.NFD);
+        	titleStr = titleStr.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");
+        	// Remove special chars
+        	titleStr = titleStr.replaceAll("[^A-Za-z0-9 ]", " ");
+        	
+            String[] keyWds = StringUtils.split(titleStr);
+            Iterator<String> itKeyWords = Arrays.asList(keyWds).iterator();
+
+            while (itKeyWords.hasNext()) {
+                //String keyWord = StringUtils.replace(itKeyWords.next(), "'", "\\'");
+            	String keyWord = itKeyWords.next();
+            	
+                query.append("dc:title ILIKE '%");
+                query.append(keyWord);
+                query.append("%'");
+
+                if (itKeyWords.hasNext()) {
+                	query.append(" AND ");
+                }
+            }
+        	
+        	//query.append(" AND dc:title ILIKE '%"+search.getTitle()+"%' ");
         }
         
         if(StringUtils.isNotBlank(workspacePath)) {
