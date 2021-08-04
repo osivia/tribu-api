@@ -28,6 +28,9 @@ public enum ContentErrorCode {
 	/** bad token */
 	WARN_BAD_TOKEN(LogLevel.WARN, "W05","Demande téléchargement direct incorrcte ou expirée", HttpStatus.FORBIDDEN),
 	
+	/** wrong user */
+	WARN_WRONG_USER(LogLevel.WARN, "W06","Utilisateur non trouvé", HttpStatus.FORBIDDEN),	
+	
 	/** error with repository */
 	ERROR_BACKEND(LogLevel.ERROR, "E01","Erreur d'accès aux données", HttpStatus.INTERNAL_SERVER_ERROR),
 	

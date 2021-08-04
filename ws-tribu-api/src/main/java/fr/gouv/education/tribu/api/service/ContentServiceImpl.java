@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.nuxeo.ecm.automation.client.model.Document;
 import org.nuxeo.ecm.automation.client.model.PaginableDocuments;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
 
+import fr.gouv.education.tribu.api.directory.model.Person;
+import fr.gouv.education.tribu.api.directory.service.PersonService;
 import fr.gouv.education.tribu.api.model.ApiUser;
 import fr.gouv.education.tribu.api.model.BinaryContent;
 import fr.gouv.education.tribu.api.model.ContentDto;
@@ -23,7 +26,6 @@ import fr.gouv.education.tribu.api.repo.NuxeoCommand;
 import fr.gouv.education.tribu.api.repo.NuxeoRepo;
 import fr.gouv.education.tribu.api.repo.RepositoryException;
 import fr.gouv.education.tribu.api.repo.commands.FileContentCommand;
-import fr.gouv.education.tribu.api.repo.commands.FileContentStreamCommand;
 import fr.gouv.education.tribu.api.repo.commands.GetDocumentCommand;
 import fr.gouv.education.tribu.api.repo.commands.SearchCommand;
 import fr.gouv.education.tribu.api.service.token.DownloadToken;
@@ -44,16 +46,23 @@ public class ContentServiceImpl implements ContentService {
 	private NuxeoRepo repo;
 	
 	@Autowired
+	private PersonService personService;
+	
+	@Autowired
 	@Qualifier("appMap")
 	private Map<String, ApiUser> appMap;	
 
 	@Override
-	public TribuApiResponse search(SearchForm search) throws RepositoryException, ContentServiceException {
+	public TribuApiResponse search(SearchForm search) throws RepositoryException, ContentServiceException, UserNotFoundException {
+		
 		
 		ApiUser apiUser = appMap.get(search.getAppId());
+
+		String userId = processUserId(search.getUser(), search.getHashnumen());
+
 		
 		NuxeoCommand command = context.getBean(SearchCommand.class, search, apiUser.getWorkspacePath());
-		PaginableDocuments searchResults = (PaginableDocuments) repo.executeCommand(search.getAppId(), command);
+		PaginableDocuments searchResults = (PaginableDocuments) repo.executeCommand(userId, command);
 				
 		List<ContentDto> docs = new ArrayList<ContentDto>();
 		for(Document result : searchResults) {
@@ -70,6 +79,29 @@ public class ContentServiceImpl implements ContentService {
 		return response;
 	}
 
+
+	private String processUserId(String userId, String hashnumen) throws UserNotFoundException {
+
+		
+		
+		if(StringUtils.isNotBlank(hashnumen)) {
+			// ldap search by hashnumen
+			Person searchByNumen = personService.getEmptyPerson();
+			searchByNumen.setHashNumen(hashnumen);
+			List<Person> persons = personService.findByCriteria(searchByNumen);
+			
+			if(persons != null && persons.size() == 1) {
+				Person person = persons.get(0);
+				userId = person.getUid();
+			}
+			else {
+				throw new UserNotFoundException("Person with numen "+hashnumen+ " not found");
+			}
+				
+		}
+		return userId;
+	}
+
 	
 	private ContentDto toDto(Document document, String compomentName) throws ContentServiceException {
 		ContentDto dto = (ContentDto) context.getBean(compomentName);
@@ -77,12 +109,13 @@ public class ContentServiceImpl implements ContentService {
 	}
 
 	@Override
-	public DownloadUrlResponse download(DownloadForm dlForm) throws RepositoryException, ContentServiceException {
+	public DownloadUrlResponse download(DownloadForm dlForm) throws RepositoryException, ContentServiceException, UserNotFoundException {
 		
-		
+		String userId = processUserId(dlForm.getUser(), dlForm.getHashnumen());
+
 		
 		NuxeoCommand command = context.getBean(GetDocumentCommand.class, dlForm);
-		PaginableDocuments searchResults = (PaginableDocuments) repo.executeCommand(dlForm.getAppId(), command);
+		PaginableDocuments searchResults = (PaginableDocuments) repo.executeCommand(userId, command);
 
 		List<ContentDto> docs = new ArrayList<ContentDto>(1);
 		for(Document result : searchResults) {
@@ -130,13 +163,11 @@ public class ContentServiceImpl implements ContentService {
 
 
 	@Override
-	public BinaryContent startDownload(String uuid, String appId) throws RepositoryException {
+	public BinaryContent startDownload(String uuid, String userId) throws RepositoryException, UserNotFoundException {
 		
 		
-		NuxeoCommand command = context.getBean(FileContentCommand.class, uuid);
-		//NuxeoCommand command = context.getBean(FileContentStreamCommand.class, uuid);
-		
-		BinaryContent binaryContent = (BinaryContent) repo.executeCommand(appId, command);
+		NuxeoCommand command = context.getBean(FileContentCommand.class, uuid);	
+		BinaryContent binaryContent = (BinaryContent) repo.executeCommand(userId, command);
 		
 		return binaryContent;
 		

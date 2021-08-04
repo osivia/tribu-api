@@ -1,5 +1,7 @@
 package fr.gouv.education.tribu.api.repo;
 
+import fr.gouv.education.tribu.api.service.UserNotFoundException;
+
 /**
  * Access layer to nuxeo
  * 
@@ -16,7 +18,8 @@ public interface NuxeoRepo {
 	 * @param command
 	 * @return
 	 * @throws RepositoryException
+	 * @throws UserNotFoundException 
 	 */
-	Object executeCommand(String userId, NuxeoCommand command) throws RepositoryException;
+	Object executeCommand(String userId, NuxeoCommand command) throws RepositoryException, UserNotFoundException;
 
 }

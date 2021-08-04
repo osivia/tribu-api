@@ -17,6 +17,11 @@ public class TribuApiQueryForm {
 	private String user;
 	
 	@ApiModelProperty(
+			  value = "Hash numen transmis par la FIM",
+			  example = "70390851d88c7bfab1ce6bfc3bef4e9327a5e85447f3519d4704372362319d9d")
+	private String hashnumen;	
+	
+	@ApiModelProperty(
 			  value = "Recherche par titre",
 			  example = "Rapport d'activité")
 	private String title;
@@ -46,6 +51,14 @@ public class TribuApiQueryForm {
 
 	public void setUser(String user) {
 		this.user = user;
+	}
+	
+	public String getHashnumen() {
+		return hashnumen;
+	}
+
+	public void setHashnumen(String hashnumen) {
+		this.hashnumen = hashnumen;
 	}
 
 	public String getTitle() {

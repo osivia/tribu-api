@@ -9,7 +9,6 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.apache.tomcat.util.digester.SetPropertiesRule;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
@@ -44,7 +43,7 @@ public class SearchCommand  extends NuxeoQueryCommand {
         StringBuilder query = new StringBuilder();
         query.append("SELECT * FROM Document WHERE ");
         query.append(" ecm:mixinType <> 'HiddenInNavigation' AND ecm:currentLifeCycleState <> 'deleted'  AND ecm:isCheckedInVersion = 0");
-        query.append(" AND ecm:mixinType = 'Downloadable' ");
+        query.append(" AND (ecm:mixinType = 'Downloadable' OR ecm:mixinType = 'Audio' OR ecm:mixinType = 'Video' OR ecm:mixinType = 'Picture' ) ");
         query.append(" AND ecm:mixinType <> 'isLocalPublishLive' ");
         
         if(StringUtils.isNotBlank(search.getFulltext())) {
@@ -61,7 +60,6 @@ public class SearchCommand  extends NuxeoQueryCommand {
             Iterator<String> itKeyWords = Arrays.asList(keyWds).iterator();
 
             while (itKeyWords.hasNext()) {
-                //String keyWord = StringUtils.replace(itKeyWords.next(), "'", "\\'");
             	String keyWord = itKeyWords.next();
             	
                 query.append("(ecm:fulltext = '");
@@ -90,7 +88,6 @@ public class SearchCommand  extends NuxeoQueryCommand {
             Iterator<String> itKeyWords = Arrays.asList(keyWds).iterator();
 
             while (itKeyWords.hasNext()) {
-                //String keyWord = StringUtils.replace(itKeyWords.next(), "'", "\\'");
             	String keyWord = itKeyWords.next();
             	
                 query.append("dc:title ILIKE '%");
@@ -102,7 +99,6 @@ public class SearchCommand  extends NuxeoQueryCommand {
                 }
             }
         	
-        	//query.append(" AND dc:title ILIKE '%"+search.getTitle()+"%' ");
         }
         
         if(StringUtils.isNotBlank(workspacePath)) {

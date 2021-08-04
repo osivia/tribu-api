@@ -19,21 +19,11 @@ public class ApiUser implements Serializable {
 	 */
 	private static final long serialVersionUID = 903745658142001247L;
 
-	private String nuxeoUser;
 	
 	private String workspacePath;
 
-
-	public String getNuxeoUser() {
-		return nuxeoUser;
-	}
-
 	public String getWorkspacePath() {
 		return workspacePath;
-	}
-
-	public void setNuxeoUser(String nuxeoUser) {
-		this.nuxeoUser = nuxeoUser;
 	}
 
 	public void setWorkspacePath(String workspacePath) {

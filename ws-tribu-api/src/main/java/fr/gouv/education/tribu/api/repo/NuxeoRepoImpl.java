@@ -1,17 +1,14 @@
 package fr.gouv.education.tribu.api.repo;
 
-import java.util.Map;
-
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.nuxeo.ecm.automation.client.Session;
 import org.nuxeo.ecm.automation.client.jaxrs.impl.HttpAutomationClient;
 import org.nuxeo.ecm.automation.client.jaxrs.spi.auth.PortalSSOAuthInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import fr.gouv.education.tribu.api.model.ApiUser;
+import fr.gouv.education.tribu.api.service.UserNotFoundException;
 
 @Service
 public class NuxeoRepoImpl implements NuxeoRepo {
@@ -20,24 +17,21 @@ public class NuxeoRepoImpl implements NuxeoRepo {
 	@Value("${nuxeo.secretKey}")
 	private String secretKey;
 	
-	@Autowired
-	@Qualifier("appMap")
-	private Map<String, ApiUser> appMap;
+//	@Autowired
+//	@Qualifier("appMap")
+//	private Map<String, ApiUser> appMap;
 
 	
 	@Autowired
 	private GenericObjectPool<HttpAutomationClient> pool;
 
-	public Object executeCommand(String appId, NuxeoCommand command) throws RepositoryException {
+	public Object executeCommand(String userId, NuxeoCommand command) throws RepositoryException, UserNotFoundException {
 		
 		HttpAutomationClient client = null;
 		
-		ApiUser user = appMap.get(appId);
-		String userId = user.getNuxeoUser();
-
 		
 		if(userId == null) {
-			throw new RepositoryException("Unable to get a valid user for app "+appId);
+			throw new RepositoryException("Unable to get a valid user "+userId);
 		}
 		
 		try {
@@ -57,7 +51,7 @@ public class NuxeoRepoImpl implements NuxeoRepo {
 			try {
 				session = client.getSession();
 			} catch (Exception e) {
-				throw new RepositoryException("Unable to login with "+userId,e);
+				throw new UserNotFoundException("Unable to login with "+userId, e);
 
 			}
 	

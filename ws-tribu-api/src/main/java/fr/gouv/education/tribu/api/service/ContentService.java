@@ -20,8 +20,9 @@ public interface ContentService {
 	 * 
 	 * @param search
 	 * @return
+	 * @throws UserNotFoundException 
 	 */
-	TribuApiResponse search(SearchForm search) throws RepositoryException, ContentServiceException;
+	TribuApiResponse search(SearchForm search) throws RepositoryException, ContentServiceException, UserNotFoundException;
 
 	/**
 	 * Download document (ask for a token url)
@@ -30,8 +31,9 @@ public interface ContentService {
 	 * @return
 	 * @throws ContentServiceException 
 	 * @throws RepositoryException 
+	 * @throws UserNotFoundException 
 	 */
-	DownloadUrlResponse download(DownloadForm dlForm) throws RepositoryException, ContentServiceException;
+	DownloadUrlResponse download(DownloadForm dlForm) throws RepositoryException, ContentServiceException, UserNotFoundException;
 
 	/**
 	 * Check if the token given in url is valid
@@ -48,8 +50,9 @@ public interface ContentService {
 	 * @param uuid
 	 * @param appId
 	 * @return
+	 * @throws UserNotFoundException 
 	 */
-	BinaryContent startDownload(String uuid, String appId) throws RepositoryException;
+	BinaryContent startDownload(String uuid, String appId) throws RepositoryException, UserNotFoundException;
 
 
 }

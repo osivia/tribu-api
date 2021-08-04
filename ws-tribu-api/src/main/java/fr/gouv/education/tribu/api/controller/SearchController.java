@@ -2,6 +2,7 @@ package fr.gouv.education.tribu.api.controller;
 
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import fr.gouv.education.tribu.api.model.TribuApiResponse;
 import fr.gouv.education.tribu.api.repo.RepositoryException;
 import fr.gouv.education.tribu.api.service.ContentService;
 import fr.gouv.education.tribu.api.service.ContentServiceException;
+import fr.gouv.education.tribu.api.service.UserNotFoundException;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -54,14 +56,11 @@ public class SearchController extends AbstractWsController {
 		if (search == null) {
 			return logAndReturn(null, SEARCH, "?", startTime, ContentErrorCode.WARN_WRONG_PARAMETER, "search");
 		}
-		else if (search.getUser() == null) {
-			return logAndReturn(null, SEARCH, "?", startTime, ContentErrorCode.WARN_WRONG_PARAMETER, "user");
+		else if (StringUtils.isBlank(search.getUser()) || StringUtils.isBlank(search.getAppId())) {
+			return logAndReturn(null, SEARCH, "?", startTime, ContentErrorCode.WARN_WRONG_PARAMETER, "user et appId");
 		}
-		else if (search.getAppId() == null) {
-			return logAndReturn(null, SEARCH, search.getUser(), startTime, ContentErrorCode.WARN_WRONG_PARAMETER, "appId");
-		}		
 		else if (search.getTitle() == null && search.getFulltext() == null) {
-			return logAndReturn(null, SEARCH, search.getUser(), startTime, ContentErrorCode.WARN_WRONG_PARAMETER, "query by title or fulltext");
+			return logAndReturn(null, SEARCH, search.getUser(), startTime, ContentErrorCode.WARN_WRONG_PARAMETER, "titre ou fulltext");
 		
 		} 
 		else {
@@ -73,10 +72,13 @@ public class SearchController extends AbstractWsController {
 
 				liste = contentService.search(search);
 
-			} catch (RepositoryException e) {
+			} catch (UserNotFoundException e) {
 
+				return logStackAndReturn(e, SEARCH, logUser, startTime, ContentErrorCode.WARN_WRONG_USER);
+			} catch (RepositoryException e) {
 				return logStackAndReturn(e, SEARCH, logUser, startTime, ContentErrorCode.ERROR_BACKEND);
-			} catch (ContentServiceException e) {
+			} 
+			catch (ContentServiceException e) {
 
 				return logStackAndReturn(e, SEARCH, logUser, startTime, ContentErrorCode.ERROR_TECH);
 			}
@@ -101,12 +103,9 @@ public class SearchController extends AbstractWsController {
 		if (dlForm == null) {
 			return logAndReturn(null, DOWNLOAD, "?", startTime, ContentErrorCode.WARN_WRONG_PARAMETER, "search");
 		}
-		else if (dlForm.getUser() == null) {
-			return logAndReturn(null, DOWNLOAD, "?", startTime, ContentErrorCode.WARN_WRONG_PARAMETER, "user");
-		}
-		else if (dlForm.getAppId() == null) {
-			return logAndReturn(null, DOWNLOAD, dlForm.getUser(), startTime, ContentErrorCode.WARN_WRONG_PARAMETER, "appId");
-		}				
+		else if (StringUtils.isBlank(dlForm.getUser()) || StringUtils.isBlank(dlForm.getAppId())) {
+			return logAndReturn(null, SEARCH, "?", startTime, ContentErrorCode.WARN_WRONG_PARAMETER, "user et appId");
+		}	
 		else if (dlForm.getUuid() == null && dlForm.getUuid() == null) {
 			return logAndReturn(null, DOWNLOAD, dlForm.getUser(), startTime, ContentErrorCode.WARN_WRONG_PARAMETER, "uuid");
 		
@@ -124,6 +123,9 @@ public class SearchController extends AbstractWsController {
 				// let ehache synchronize the token to peers
 				TimeUnit.SECONDS.sleep(1);
 
+			} catch (UserNotFoundException e) {
+
+				return logStackAndReturn(e, SEARCH, logUser, startTime, ContentErrorCode.WARN_WRONG_USER);
 			} catch (RepositoryException e) {
 
 				return logStackAndReturn(e, DOWNLOAD, logUser, startTime, ContentErrorCode.ERROR_BACKEND);
