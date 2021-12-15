@@ -11,16 +11,12 @@
  */
 package org.nuxeo.ecm.automation.client.model;
 
-import org.nuxeo.ecm.automation.client.OperationRequest;
-
 
 
 /**
  * @author matic
- * @deprecated in 5.7 (did not work in 5.6 either): pass Object instance
- *             directly to the {@link OperationRequest#setInput} method.
+ *
  */
-@Deprecated
 public class PrimitiveInput<T> implements OperationInput {
 
     private static final long serialVersionUID = -6717232462627061723L;

@@ -1,14 +1,13 @@
 /*
  * Copyright (c) 2006-2011 Nuxeo SA (http://nuxeo.com/) and others.
- *
+ * 
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- *     bstefanescu
- *     ataillefer
+ * bstefanescu
  */
 package org.nuxeo.ecm.automation.client.jaxrs.impl;
 
@@ -16,57 +15,49 @@ import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.PoolingClientConnectionManager;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.nuxeo.ecm.automation.client.LoginInfo;
 import org.nuxeo.ecm.automation.client.Session;
-import org.nuxeo.ecm.automation.client.adapters.BusinessServiceFactory;
+import org.nuxeo.ecm.automation.client.adapters.DocumentSecurityServiceFactory;
 import org.nuxeo.ecm.automation.client.adapters.DocumentServiceFactory;
 import org.nuxeo.ecm.automation.client.jaxrs.spi.AbstractAutomationClient;
 import org.nuxeo.ecm.automation.client.jaxrs.spi.Connector;
+import org.nuxeo.ecm.automation.client.jaxrs.spi.ConnectorHandler;
 import org.nuxeo.ecm.automation.client.jaxrs.spi.StreamedSession;
-import org.nuxeo.ecm.automation.client.rest.api.RestClient;
+import org.nuxeo.ecm.automation.client.model.OperationRegistry;
 
 /**
- * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
- * @author <a href="mailto:ataillefer@nuxeo.com">Antoine Taillefer</a>
+ * TOUTATICE update
+ * 
+ * This class directly extends AbstractAutomationClient instead of
+ * AsyncAutomationClient (performance issue during shutdown ( delay of 2 s. with
+ * java synchronization)
+ * 
+ * redefines getSession() in order to share the registry between
+ * clients (perf. issues)
+ * 
+ * introduces a StreamedSession for large files
+ * 
+ * 
+ * @author jssteux@cap2j.org
  */
 public class HttpAutomationClient extends AbstractAutomationClient {
 
     protected HttpClient http;
 
-    protected int httpConnectionTimeout;
 
-    /**
-     * Instantiates a new {@link HttpAutomationClient} with no timeout for the
-     * HTTP connection and the default timeout for the wait of the asynchronous
-     * thread pool termination: 2 seconds.
-     */
+    public static OperationRegistry sharedRegistry = null;
+    public static Object sharedRegistrySynchronizer = new Object();
+    public static long sharedRegistryUpdateTimestamp = 0L;
+    private static long SHARED_REGISTRY_EXPIRATION_DELAY = 60000L;
+
     public HttpAutomationClient(String url) {
-        this(url, 0);
-    }
-
-    /**
-     * Instantiates a new {@link HttpAutomationClient} with the given timeout in
-     * milliseconds for the HTTP connection and the default timeout for the wait
-     * of the asynchronous thread pool termination: 2 seconds.
-     *
-     * @since 5.7
-     */
-    public HttpAutomationClient(String url, int httpConnectionTimeout) {
         super(url);
-        init(httpConnectionTimeout);
-    }
-
-    
-    
-
-    private void init(int httpConnectionTimeout) {
-        http = new DefaultHttpClient(new PoolingClientConnectionManager());
-        this.httpConnectionTimeout = httpConnectionTimeout;
+        http = HttpClientBuilder.create().build();
         // http.setCookieSpecs(null);
         // http.setCookieStore(null);
         registerAdapter(new DocumentServiceFactory());
-        registerAdapter(new BusinessServiceFactory());
+        registerAdapter(new DocumentSecurityServiceFactory());
     }
 
     public void setProxy(String host, int port) {
@@ -74,38 +65,55 @@ public class HttpAutomationClient extends AbstractAutomationClient {
         // new AuthScope(PROXY, PROXY_PORT),
         // new UsernamePasswordCredentials("username", "password"));
 
-        http.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY,
-                new HttpHost(host, port));
+        http.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, new HttpHost(host, port));
     }
 
     public HttpClient http() {
         return http;
     }
 
-    @Override
-    public synchronized void shutdown() {
-        super.shutdown();
-        http.getConnectionManager().shutdown();
-        http = null;
-    } 
-
-    @Override
-    protected Connector newConnector() {
-        return new HttpConnector(http, httpConnectionTimeout);
+    public Session getSession() {
+        Connector connector = newConnector();
+        if (requestInterceptor != null) {
+            connector = new ConnectorHandler(connector, requestInterceptor);
+        }
+        if (registry == null) {
+            if (System.currentTimeMillis() - sharedRegistryUpdateTimestamp < SHARED_REGISTRY_EXPIRATION_DELAY) {
+                registry = sharedRegistry;
+            } else {
+                synchronized (sharedRegistrySynchronizer) {
+                    // Duplicate the test to avoid reentrance
+                    if (System.currentTimeMillis() - sharedRegistryUpdateTimestamp < SHARED_REGISTRY_EXPIRATION_DELAY) {
+                        registry = sharedRegistry;
+                    } else {
+                        // Retrieve the registry
+                        registry = connect(connector);
+                        sharedRegistry = registry;
+                        sharedRegistryUpdateTimestamp = System.currentTimeMillis();
+                    }
+                }
+            }
+        }
+        return login(connector);
     }
 
-    /**
-     * Returns the {@link RestClient} associated to this
-     * {@link org.nuxeo.ecm.automation.client.jaxrs.impl.HttpAutomationClient}.
-     *
-     * @since 5.8
-     */
-    public RestClient getRestClient() {
-        return new RestClient(this);
-    }
-    
     protected Session createSession(final Connector connector, final LoginInfo login) {
         return new StreamedSession(this, connector, login == null ? LoginInfo.ANONYNMOUS : login);
     }
-    
+
+
+    @Override
+    public synchronized void shutdown() {
+        super.shutdown();
+        if( http != null)   {
+            if( http.getConnectionManager() != null)
+                http.getConnectionManager().shutdown();
+        }
+        http = null;
+    }
+
+    @Override
+    protected Connector newConnector() {
+        return new HttpConnector(http);
+    }
 }

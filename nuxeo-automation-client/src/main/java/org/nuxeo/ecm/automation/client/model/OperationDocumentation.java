@@ -115,8 +115,6 @@ public class OperationDocumentation implements
 
         public String name;
 
-        public String description;
-
         public String type; // the data type
 
         public String widget; // the widget type
@@ -127,13 +125,6 @@ public class OperationDocumentation implements
 
         public String getName() {
             return name;
-        }
-
-        /**
-         * @since 5.7.3
-         */
-        public String getDescription() {
-            return description;
         }
 
         public String getType() {

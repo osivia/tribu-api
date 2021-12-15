@@ -14,7 +14,6 @@ package org.nuxeo.ecm.automation.client.jaxrs.spi.marshallers;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonToken;
-import org.nuxeo.ecm.automation.client.Constants;
 import org.nuxeo.ecm.automation.client.RemoteException;
 import org.nuxeo.ecm.automation.client.jaxrs.spi.JsonMarshaller;
 import org.nuxeo.ecm.automation.client.jaxrs.spi.JsonMarshalling;
@@ -52,7 +51,7 @@ public class ExceptionMarshaller implements JsonMarshaller<RemoteException> {
         String type = null, message = null;
         Throwable cause = null;
         JsonToken tok = jp.nextToken();
-        while (tok != null && tok != JsonToken.END_OBJECT) {
+        while (tok != JsonToken.END_OBJECT) {
             String key = jp.getCurrentName();
             tok = jp.nextToken();
             if ("status".equals(key)) {
@@ -61,25 +60,20 @@ public class ExceptionMarshaller implements JsonMarshaller<RemoteException> {
                 } else {
                     status = Integer.parseInt(jp.getText());
                 }
-            } else if (Constants.KEY_ENTITY_TYPE.equals(key) || "type".equals
-                    (key)) {
+            } else if ("type".equals(key)) {
                 type = jp.getText();
             } else if ("message".equals(key)) {
                 message = jp.getText();
-            } else if ("exception".equals(key) || "cause".equals(key)) {
+            } else if ("cause".equals(key)) {
                 cause = jp.readValueAs(Throwable.class);
-            }
+            } 
             tok = jp.nextToken();
-        }
-        if (tok == null) {
-            throw new IllegalArgumentException(
-                    "Unexpected end of stream.");
         }
         return new RemoteException(status, type, message, cause);
     }
 
     @Override
-    public void write(JsonGenerator jg, Object value) throws Exception {
+    public void write(JsonGenerator jg, RemoteException value) throws Exception {
         throw new UnsupportedOperationException();
     }
 

@@ -1,4 +1,4 @@
-/*
+/* 
  * Copyright (c) 2006-2011 Nuxeo SA (http://nuxeo.com/) and others.
  *
  * All rights reserved. This program and the accompanying materials
@@ -20,10 +20,9 @@ import java.util.Map;
 import org.nuxeo.ecm.automation.client.AsyncCallback;
 import org.nuxeo.ecm.automation.client.OperationRequest;
 import org.nuxeo.ecm.automation.client.model.DateUtils;
-import org.nuxeo.ecm.automation.client.model.Document;
 import org.nuxeo.ecm.automation.client.model.OperationDocumentation;
-import org.nuxeo.ecm.automation.client.model.OperationDocumentation.Param;
 import org.nuxeo.ecm.automation.client.model.OperationInput;
+import org.nuxeo.ecm.automation.client.model.OperationDocumentation.Param;
 
 /**
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
@@ -40,7 +39,7 @@ public class DefaultOperationRequest implements OperationRequest {
 
     protected final Map<String, String> headers;
 
-    protected Object input;
+    protected OperationInput input;
 
     public DefaultOperationRequest(DefaultSession session,
             OperationDocumentation op) {
@@ -74,8 +73,7 @@ public class DefaultOperationRequest implements OperationRequest {
 
     protected final void checkInput(String type) {
         if (!acceptInput(type)) {
-            throw new IllegalArgumentException("Input not supported: " + type
-                    + " for the operation: " + op.id);
+            throw new IllegalArgumentException("Input not supported: " + type);
         }
     }
 
@@ -96,17 +94,17 @@ public class DefaultOperationRequest implements OperationRequest {
         return null;
     }
 
-    public OperationRequest setInput(Object input) {
+    public OperationRequest setInput(OperationInput input) {
         if (input == null) {
             checkInput("void");
-        } else if (input instanceof OperationInput) {
-            checkInput(((OperationInput) input).getInputType());
+        } else {
+            checkInput(input.getInputType());
         }
         this.input = input;
         return this;
     }
 
-    public Object getInput() {
+    public OperationInput getInput() {
         return input;
     }
 
@@ -134,25 +132,14 @@ public class DefaultOperationRequest implements OperationRequest {
         // }
         if (value.getClass() == Date.class) {
             params.put(key, DateUtils.formatDate((Date) value));
-        } else if ("properties".equals(key) && value instanceof Document) {
-            // Handle document parameter in case of properties - and bind it to
-            // properties
-            List<Param> parameters = op.getParams();
-            for (Param parameter : parameters) {
-                // Check if one of params has the Properties type
-                if ("properties".equals(parameter.getType())) {
-                    params.put("properties",
-                            ((Document) value).getDirties().toString());
-                }
-            }
         } else {
-            params.put(key, value);
+            params.put(key, value.toString());
         }
         return this;
     }
 
     public OperationRequest setContextProperty(String key, Object value) {
-        ctx.put(key, value != null ? value : null);
+        ctx.put(key, value != null ? value.toString() : null);
         return this;
     }
 
@@ -165,7 +152,10 @@ public class DefaultOperationRequest implements OperationRequest {
     }
 
     public Object execute() throws Exception {
-        return session.execute(this);
+    	synchronized (session) {
+    		return session.execute(this);
+		}
+        
     }
 
     public void execute(AsyncCallback<Object> cb) {
@@ -181,7 +171,6 @@ public class DefaultOperationRequest implements OperationRequest {
         return headers;
     }
 
-    @Override
     public OperationDocumentation getOperation() {
         return op;
     }

@@ -19,10 +19,18 @@ import org.nuxeo.ecm.automation.client.Session;
  */
 public class DocumentServiceFactory implements AdapterFactory<DocumentService> {
 
-	@Override
-	public DocumentService getAdapter(Session session, Class<DocumentService> clazz) {
-		return new DocumentService(session);
-	}
+    public Class<?> getAcceptType() {
+        return Session.class;
+    }
 
+    public Class<DocumentService> getAdapterType() {
+        return DocumentService.class;
+    }
+
+    public DocumentService getAdapter(Object toAdapt) {
+        return new DocumentService((Session) toAdapt);
+    }
+    
+    
 
 }

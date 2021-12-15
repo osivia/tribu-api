@@ -15,8 +15,12 @@ package org.nuxeo.ecm.automation.client.jaxrs.spi;
 import static org.nuxeo.ecm.automation.client.Constants.CTYPE_AUTOMATION;
 import static org.nuxeo.ecm.automation.client.Constants.CTYPE_ENTITY;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.nuxeo.ecm.automation.client.AdapterFactory;
-import org.nuxeo.ecm.automation.client.AdapterManager;
 import org.nuxeo.ecm.automation.client.AsyncCallback;
 import org.nuxeo.ecm.automation.client.AutomationClient;
 import org.nuxeo.ecm.automation.client.LoginCallback;
@@ -25,35 +29,32 @@ import org.nuxeo.ecm.automation.client.Session;
 import org.nuxeo.ecm.automation.client.TokenCallback;
 import org.nuxeo.ecm.automation.client.jaxrs.spi.auth.BasicAuthInterceptor;
 import org.nuxeo.ecm.automation.client.jaxrs.spi.auth.TokenAuthInterceptor;
-import org.nuxeo.ecm.automation.client.jaxrs.spi.marshallers.PojoMarshaller;
 import org.nuxeo.ecm.automation.client.model.OperationRegistry;
 
 /**
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
- * @author <a href="mailto:ataillefer@nuxeo.com">Antoine Taillefer</a>
  */
 public abstract class AbstractAutomationClient implements AutomationClient {
-
-    private static final Object SHARED_REGISTRY_SYNCHRONIZER = new Object();
-
-    // Use an operation registry shared by the multiple client sessions for
-    // performance reasons
-    private static volatile OperationRegistry sharedRegistry;
-
-    private static long sharedRegistryUpdateTimestamp = 0L;
-
-    private static long sharedRegistryExpirationDelay = 60000L;
-
-    protected final AdapterManager adapterManager = new AdapterManager();
 
     protected String url;
 
     protected volatile OperationRegistry registry;
 
+    protected Map<Class<?>, List<AdapterFactory<?>>> adapters;
+
     protected RequestInterceptor requestInterceptor;
 
     protected AbstractAutomationClient(String url) {
+        this.adapters = new HashMap<Class<?>, List<AdapterFactory<?>>>();
         this.url = url.endsWith("/") ? url : url + "/";
+    }
+
+    /**
+     * Can be used for intercepting requests before they are being sent to the
+     * server.
+     */
+    public void setRequestInterceptor(RequestInterceptor interceptor) {
+        requestInterceptor = interceptor;
     }
 
     /**
@@ -61,15 +62,6 @@ public abstract class AbstractAutomationClient implements AutomationClient {
      */
     public RequestInterceptor getRequestInterceptor() {
         return requestInterceptor;
-    }
-
-    /**
-     * Can be used for intercepting requests before they are being sent to the
-     * server.
-     */
-    @Override
-    public void setRequestInterceptor(RequestInterceptor interceptor) {
-        requestInterceptor = interceptor;
     }
 
     @Override
@@ -87,13 +79,28 @@ public abstract class AbstractAutomationClient implements AutomationClient {
 
     @Override
     public void registerAdapter(AdapterFactory<?> factory) {
-        adapterManager.registerAdapter(factory);
+        Class<?> adapter = factory.getAdapterType();
+        List<AdapterFactory<?>> factories = adapters.get(adapter);
+        if (factories == null) {
+            factories = new ArrayList<AdapterFactory<?>>();
+            adapters.put(adapter, factories);
+        }
+        factories.add(factory);
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T getAdapter(Session session, Class<T> adapterType) {
-        return adapterManager.getAdapter(session, adapterType);
+    public <T> T getAdapter(Object objToAdapt, Class<T> adapterType) {
+        Class<?> cls = objToAdapt.getClass();
+        List<AdapterFactory<?>> factories = adapters.get(adapterType);
+        if (factories != null) {
+            for (AdapterFactory<?> f : factories) {
+                if (f.getAcceptType().isAssignableFrom(cls)) {
+                    return (T) f.getAdapter(objToAdapt);
+                }
+            }
+        }
+        return null;
     }
 
     protected OperationRegistry connect(Connector connector) {
@@ -104,9 +111,9 @@ public abstract class AbstractAutomationClient implements AutomationClient {
     }
 
     public synchronized void shutdown() {
-        adapterManager.clear();
         url = null;
         registry = null;
+        adapters = null;
     }
 
     public Session getSession() {
@@ -115,20 +122,9 @@ public abstract class AbstractAutomationClient implements AutomationClient {
             connector = new ConnectorHandler(connector, requestInterceptor);
         }
         if (registry == null) { // not yet connected
-            if (System.currentTimeMillis() - sharedRegistryUpdateTimestamp < sharedRegistryExpirationDelay) {
-                registry = sharedRegistry;
-            } else {
-                synchronized (SHARED_REGISTRY_SYNCHRONIZER) {
-                    // duplicate the test to avoid reentrance
-                    if (System.currentTimeMillis()
-                            - sharedRegistryUpdateTimestamp < sharedRegistryExpirationDelay) {
-                        registry = sharedRegistry;
-                    } else {
-                        // retrieve the registry
-                        registry = connect(connector);
-                        sharedRegistry = registry;
-                        sharedRegistryUpdateTimestamp = System.currentTimeMillis();
-                    }
+            synchronized (this) {
+                if (registry == null) {
+                    registry = connect(connector);
                 }
             }
         }
@@ -207,15 +203,4 @@ public abstract class AbstractAutomationClient implements AutomationClient {
 
     protected abstract Connector newConnector();
 
-    /**
-     * @since 5.7
-     */
-    public void setSharedRegistryExpirationDelay(long delay) {
-        sharedRegistryExpirationDelay = delay;
-    }
-
-    @Override
-    public void registerPojoMarshaller(Class clazz) {
-        JsonMarshalling.addMarshaller(PojoMarshaller.forClass(clazz));
-    }
 }

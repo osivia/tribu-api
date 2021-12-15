@@ -35,12 +35,11 @@ public class DocumentsMarshaller implements JsonMarshaller<Documents> {
     }
 
     @Override
-    public void write(JsonGenerator jg, Object value) throws Exception {
+    public void write(JsonGenerator jg, Documents value) throws Exception {
         throw new UnsupportedOperationException();
     }
 
-    protected void readDocumentEntries(JsonParser jp, Documents docs)
-            throws Exception {
+    protected void readDocumentEntries(JsonParser jp, Documents docs) throws Exception {
         JsonToken tok = jp.nextToken();
         while (tok != JsonToken.END_ARRAY) {
             docs.add(DocumentMarshaller.readDocument(jp));
@@ -65,31 +64,21 @@ public class DocumentsMarshaller implements JsonMarshaller<Documents> {
     protected Documents readPaginableDocuments(JsonParser jp) throws Exception {
         PaginableDocuments docs = new PaginableDocuments();
         JsonToken tok = jp.getCurrentToken();
-        while (tok != null && tok != JsonToken.END_OBJECT) {
+        while (tok != JsonToken.END_OBJECT) {
             String key = jp.getCurrentName();
             jp.nextToken();
-            if ("resultsCount".equals(key)) {
-                docs.setResultsCount(jp.getIntValue());
-            } else if ("totalSize".equals(key)) {
-                docs.setResultsCount(jp.getIntValue());
+            if ("totalSize".equals(key)) {
+                docs.setTotalSize(jp.getIntValue());
             } else if ("pageSize".equals(key)) {
                 docs.setPageSize(jp.getIntValue());
-            } else if ("numberOfPages".equals(key)) {
-                docs.setNumberOfPages(jp.getIntValue());
             } else if ("pageCount".equals(key)) {
-                docs.setNumberOfPages(jp.getIntValue());
-            } else if ("currentPageIndex".equals(key)) {
-                docs.setCurrentPageIndex(jp.getIntValue());
+                docs.setPageCount(jp.getIntValue());
             } else if ("pageIndex".equals(key)) {
-                docs.setCurrentPageIndex(jp.getIntValue());
+                docs.setPageIndex(jp.getIntValue());
             } else if ("entries".equals(key)) {
                 readDocumentEntries(jp, docs);
             }
             tok = jp.nextToken();
-        }
-        if (tok == null) {
-            throw new IllegalArgumentException(
-                    "Unexpected end of stream.");
         }
         return docs;
     }
@@ -105,7 +94,6 @@ public class DocumentsMarshaller implements JsonMarshaller<Documents> {
                 jp.nextToken();
                 return readPaginableDocuments(jp);
             }
-            jp.nextToken();
         }
         return readDocuments(jp);
     }

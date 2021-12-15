@@ -46,7 +46,7 @@ public class LoginMarshaller implements JsonMarshaller<LoginInfo> {
         String username = null;
         Set<String> groups = null;
         JsonToken tok = jp.nextToken();
-        while (tok != null && tok != JsonToken.END_OBJECT) {
+        while (tok != JsonToken.END_OBJECT) {
             String key = jp.getCurrentName();
             if ("username".equals(key)) {
                 username = jp.getText();
@@ -57,10 +57,6 @@ public class LoginMarshaller implements JsonMarshaller<LoginInfo> {
                 groups = readGroups(jp);
             }
             tok = jp.nextToken();
-        }
-        if (tok == null) {
-            throw new IllegalArgumentException(
-                    "Unexpected end of stream.");
         }
         return new LoginInfo(username, groups, isAdmin);
     }
@@ -76,12 +72,11 @@ public class LoginMarshaller implements JsonMarshaller<LoginInfo> {
     }
 
     @Override
-    public void write(JsonGenerator jg, Object value) throws Exception {
-        LoginInfo loginInfo = (LoginInfo) value;
-        jg.writeStringField("username", loginInfo.getUsername());
-        jg.writeBooleanField("isAdministrator", loginInfo.isAdministrator());
+    public void write(JsonGenerator jg, LoginInfo value) throws Exception {
+        jg.writeStringField("username", value.getUsername());
+        jg.writeBooleanField("isAdministrator", value.isAdministrator());
         jg.writeArrayFieldStart("groups");
-        String[] groups = loginInfo.getGroups();
+        String[] groups = value.getGroups();
         if (groups != null) {
             for (String g : groups) {
                 jg.writeString(g);

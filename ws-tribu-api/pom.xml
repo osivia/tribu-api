@@ -13,23 +13,12 @@
 	<packaging>war</packaging>
 	<name>Tribu API webservice</name>
 
-	<dependencyManagement>
-		<dependencies>
-			<dependency>
-				<!-- Import dependency management from Spring Boot -->
-				<groupId>org.springframework.boot</groupId>
-				<artifactId>spring-boot-dependencies</artifactId>
-				<version>${springframework.boot.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
-		</dependencies>
-	</dependencyManagement>
 
 	<properties>
-		<springframework.boot.version>2.1.17.RELEASE</springframework.boot.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<!-- <swagger.version>3.0.0</swagger.version> -->
 		<springfox-swagger2.version>2.9.2</springfox-swagger2.version>
+		
 		<io.jsonwebtoken.version>0.9.0</io.jsonwebtoken.version>
 
 		<failOnMissingWebXml>false</failOnMissingWebXml>
@@ -91,21 +80,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-			<exclusions>
-				<exclusion>
-					<groupId>org.springframework.boot</groupId>
-					<artifactId>spring-boot-starter-tomcat</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-tomcat</artifactId>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
 			<version>20180130</version>
@@ -136,8 +110,8 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
-
-		<dependency>
+        
+   		<dependency>
 			<groupId>io.springfox</groupId>
 			<artifactId>springfox-swagger2</artifactId>
 			<version>${springfox-swagger2.version}</version>
@@ -152,34 +126,15 @@
 		</dependency>
 
 
+
 	</dependencies>
 	<build>
 
 		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
-				</configuration>
-			</plugin>
 
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
-
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<configuration>
-					<useSystemClassLoader>false</useSystemClassLoader>
-				</configuration>
 			</plugin>
 
 		</plugins>

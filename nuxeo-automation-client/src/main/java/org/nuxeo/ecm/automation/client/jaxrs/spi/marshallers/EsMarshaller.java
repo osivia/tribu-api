@@ -38,10 +38,9 @@ public class EsMarshaller implements JsonMarshaller<Documents> {
 		return null;
 	}
 
-	@Override
-	public void write(JsonGenerator jg, Object value) throws Exception {
+    @Override
+    public void write(JsonGenerator jg, Documents value) throws Exception {
         // Nothing to do.
-		
-	}
+    }
 
 }

@@ -13,11 +13,11 @@ package org.nuxeo.ecm.automation.client.jaxrs.spi;
 
 import static org.nuxeo.ecm.automation.client.Constants.CTYPE_REQUEST_NOCHARSET;
 import static org.nuxeo.ecm.automation.client.Constants.REQUEST_ACCEPT_HEADER;
-import static org.nuxeo.ecm.automation.client.Constants.HEADER_NX_SCHEMAS;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.automation.client.AsyncCallback;
 import org.nuxeo.ecm.automation.client.AutomationClient;
 import org.nuxeo.ecm.automation.client.LoginInfo;
@@ -33,14 +33,14 @@ import org.nuxeo.ecm.automation.client.model.OperationInput;
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
 public class DefaultSession implements Session {
+	
+	private static final String ABSOLUTE_URL_PREFIX = "http:";
 
     protected final AbstractAutomationClient client;
 
     protected final Connector connector;
 
     protected final LoginInfo login;
-
-    protected String defaultSchemas = null;
 
     public DefaultSession(AbstractAutomationClient client, Connector connector,
             LoginInfo login) {
@@ -49,7 +49,6 @@ public class DefaultSession implements Session {
         this.login = login;
     }
 
-    @Override
     public AutomationClient getClient() {
         return client;
     }
@@ -58,34 +57,20 @@ public class DefaultSession implements Session {
         return connector;
     }
 
-    @Override
     public LoginInfo getLogin() {
         return login;
     }
 
-    @Override
     public <T> T getAdapter(Class<T> type) {
         return client.getAdapter(this, type);
     }
 
-    @Override
-    public String getDefaultSchemas() {
-        return defaultSchemas;
-    }
-
-    @Override
-    public void setDefaultSchemas(String defaultSchemas) {
-        this.defaultSchemas = defaultSchemas;
-    }
-
-    @Override
     public Object execute(OperationRequest request) throws Exception {
         Request req;
         String content = JsonMarshalling.writeRequest(request);
         String ctype;
-        Object input = request.getInput();
-        if (input instanceof OperationInput
-                && ((OperationInput) input).isBinary()) {
+        OperationInput input = request.getInput();
+        if (input != null && input.isBinary()) {
             MultipartInput mpinput = new MultipartInput();
             mpinput.setRequest(content);
             ctype = mpinput.getContentType();
@@ -109,17 +94,12 @@ public class DefaultSession implements Session {
         }
         req.put("Accept", REQUEST_ACCEPT_HEADER);
         req.put("Content-Type", ctype);
-        if (req.get(HEADER_NX_SCHEMAS) == null && defaultSchemas != null) {
-            req.put(HEADER_NX_SCHEMAS, defaultSchemas);
-        }
         return connector.execute(req);
     }
 
-    @Override
     public void execute(final OperationRequest request,
             final AsyncCallback<Object> cb) {
         client.asyncExec(new Runnable() {
-            @Override
             public void run() {
                 try {
                     cb.onSuccess(execute(request));
@@ -130,23 +110,29 @@ public class DefaultSession implements Session {
         });
     }
 
-    @Override
     public Blob getFile(String path) throws Exception {
-        Request req = new Request(Request.GET, path);
+    	/* 
+    	 * 5.6-6.0 compatibility 
+    	 * FIXME: test 5.6! 
+    	 */
+    	String filePath = StringUtils.EMPTY;
+    	if(path != null && path.contains(ABSOLUTE_URL_PREFIX)){
+    		filePath = path;
+    	} else {
+    		filePath = client.getBaseUrl() + path;
+    	}
+        Request req = new Request(Request.GET, filePath);
         return (Blob) connector.execute(req);
     }
 
-    @Override
     public Blobs getFiles(String path) throws Exception {
         Request req = new Request(Request.GET, client.getBaseUrl() + path);
         return (Blobs) connector.execute(req);
     }
 
-    @Override
     public void getFile(final String path, final AsyncCallback<Blob> cb)
             throws Exception {
         client.asyncExec(new Runnable() {
-            @Override
             public void run() {
                 try {
                     cb.onSuccess(getFile(path));
@@ -157,11 +143,9 @@ public class DefaultSession implements Session {
         });
     }
 
-    @Override
     public void getFiles(final String path, final AsyncCallback<Blobs> cb)
             throws Exception {
         client.asyncExec(new Runnable() {
-            @Override
             public void run() {
                 try {
                     cb.onSuccess(getFiles(path));
@@ -172,12 +156,10 @@ public class DefaultSession implements Session {
         });
     }
 
-    @Override
     public OperationRequest newRequest(String id) throws Exception {
         return newRequest(id, new HashMap<String, Object>());
     }
 
-    @Override
     public OperationRequest newRequest(String id, Map<String, Object> ctx)
             throws Exception {
         OperationDocumentation op = getOperation(id);
@@ -187,12 +169,10 @@ public class DefaultSession implements Session {
         return new DefaultOperationRequest(this, op, ctx);
     }
 
-    @Override
     public OperationDocumentation getOperation(String id) {
         return client.getRegistry().getOperation(id);
     }
 
-    @Override
     public Map<String, OperationDocumentation> getOperations() {
         return client.getRegistry().getOperations();
     }

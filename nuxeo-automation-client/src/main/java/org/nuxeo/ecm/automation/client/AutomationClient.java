@@ -12,8 +12,6 @@
  */
 package org.nuxeo.ecm.automation.client;
 
-import org.nuxeo.ecm.automation.client.jaxrs.spi.RequestInterceptor;
-
 /**
  * The connection to the automation service is done the first time you create a
  * session. To create a session you need to pass the authentication information.
@@ -31,12 +29,6 @@ import org.nuxeo.ecm.automation.client.jaxrs.spi.RequestInterceptor;
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
  */
 public interface AutomationClient {
-
-    /**
-     * @since 6.0
-     * @param interceptor
-     */
-    void setRequestInterceptor(RequestInterceptor interceptor);
 
     /**
      * Gets the automation service URL.
@@ -109,7 +101,7 @@ public interface AutomationClient {
      * Optional operation. Framework that doesn't supports reflection like GWT
      * must throw {@link UnsupportedOperationException}
      */
-    <T> T getAdapter(Session session, Class<T> adapterType);
+    <T> T getAdapter(Object objToAdapt, Class<T> adapterType);
 
     /**
      * Register an adapter for a given type. Registration is not thread safe.
@@ -121,13 +113,6 @@ public interface AutomationClient {
      */
     // FIXME: this javadoc doesn't correspond to the method signature.
     void registerAdapter(AdapterFactory<?> factory);
-
-    /**
-     * Marshaller registration for pojo bean
-     * @since 5.7.2
-     * @param clazz the pojo bean to add to Marshalling
-     */
-    void registerPojoMarshaller(Class clazz);
 
     /**
      * Cleanup any resources held by this client. After a shutdown the client is

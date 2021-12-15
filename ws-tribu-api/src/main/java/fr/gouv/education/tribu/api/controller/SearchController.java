@@ -2,7 +2,7 @@ package fr.gouv.education.tribu.api.controller;
 
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

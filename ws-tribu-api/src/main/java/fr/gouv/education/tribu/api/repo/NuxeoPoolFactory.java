@@ -30,13 +30,10 @@ public class NuxeoPoolFactory implements PooledObjectFactory<HttpAutomationClien
 	
 	@Value("${nuxeo.privatePort}")
 	private String port;
-		
-	@Value("${nuxeo.timeout:30000}")
-	private Integer timeout;
 	
 	public PooledObject<HttpAutomationClient> makeObject() throws Exception {
       String url = getPrivateBaseUri().toString() + "/site/automation";
-      HttpAutomationClient client = new HttpAutomationClient(url, timeout);
+      HttpAutomationClient client = new HttpAutomationClient(url);
       DefaultPooledObject<HttpAutomationClient> pooled = new  DefaultPooledObject<HttpAutomationClient>(client);
       
       return pooled;

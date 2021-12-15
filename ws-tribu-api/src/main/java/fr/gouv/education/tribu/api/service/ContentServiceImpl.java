@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.nuxeo.ecm.automation.client.model.Document;
 import org.nuxeo.ecm.automation.client.model.PaginableDocuments;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,9 +71,9 @@ public class ContentServiceImpl implements ContentService {
 		}
 		
 		TribuApiResponse response = new TribuApiResponse(docs);
-		response.setCurrentPageIndex(searchResults.getCurrentPageIndex());
-		response.setNumberOfPages(searchResults.getNumberOfPages());
-		response.setResultsCount(searchResults.getResultsCount());
+		response.setCurrentPageIndex(searchResults.getPageIndex());
+		response.setNumberOfPages(searchResults.getPageCount());
+		response.setResultsCount(searchResults.getTotalSize());
 		response.setPageSize(searchResults.getPageSize());
 		
 		return response;

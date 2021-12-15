@@ -33,8 +33,8 @@ public class StreamedSession extends DefaultSession {
     }
 
     
-    public Blob getStreamedFile(String path) throws Exception {
-        Request req = new StreamedRequest(Request.GET, path);
+    public Blob getStreamedFile(String url) throws Exception {
+        Request req = new StreamedRequest(Request.GET,  url);
         return (Blob) connector.execute(req);
     }
 

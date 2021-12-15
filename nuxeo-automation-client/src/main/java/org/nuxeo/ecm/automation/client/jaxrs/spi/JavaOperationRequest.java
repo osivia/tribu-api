@@ -21,8 +21,8 @@ import org.nuxeo.ecm.automation.client.AsyncCallback;
 import org.nuxeo.ecm.automation.client.OperationRequest;
 import org.nuxeo.ecm.automation.client.model.DateUtils;
 import org.nuxeo.ecm.automation.client.model.OperationDocumentation;
-import org.nuxeo.ecm.automation.client.model.OperationDocumentation.Param;
 import org.nuxeo.ecm.automation.client.model.OperationInput;
+import org.nuxeo.ecm.automation.client.model.OperationDocumentation.Param;
 
 /**
  * @author <a href="mailto:bs@nuxeo.com">Bogdan Stefanescu</a>
@@ -39,14 +39,15 @@ public class JavaOperationRequest implements OperationRequest {
 
     protected final Map<String, String> headers;
 
-    protected Object input;
+    protected OperationInput input;
 
-    public JavaOperationRequest(JavaSession session, OperationDocumentation op) {
+    public JavaOperationRequest(JavaSession session,
+            OperationDocumentation op) {
         this(session, op, new HashMap<String, Object>());
     }
 
-    public JavaOperationRequest(JavaSession session, OperationDocumentation op,
-            Map<String, Object> ctx) {
+    public JavaOperationRequest(JavaSession session,
+            OperationDocumentation op, Map<String, Object> ctx) {
         this.session = session;
         this.op = op;
         params = new HashMap<String, Object>();
@@ -93,17 +94,17 @@ public class JavaOperationRequest implements OperationRequest {
         return null;
     }
 
-    public OperationRequest setInput(Object input) {
+    public OperationRequest setInput(OperationInput input) {
         if (input == null) {
             checkInput("void");
-        } else if (input instanceof OperationInput) {
-            checkInput(((OperationInput) input).getInputType());
+        } else {
+            checkInput(input.getInputType());
         }
         this.input = input;
         return this;
     }
 
-    public Object getInput() {
+    public OperationInput getInput() {
         return input;
     }
 
