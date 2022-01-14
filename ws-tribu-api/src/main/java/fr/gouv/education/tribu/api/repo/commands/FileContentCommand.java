@@ -29,6 +29,8 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
+import com.google.common.io.CountingOutputStream;
+
 import fr.gouv.education.tribu.api.model.BinaryContent;
 import fr.gouv.education.tribu.api.repo.NuxeoCommand;
 import fr.gouv.education.tribu.api.repo.RepositoryException;
@@ -108,20 +110,19 @@ public class FileContentCommand implements NuxeoCommand {
         File tempFile = File.createTempFile("tempFile", ".tmp");
         tempFile.deleteOnExit();
 
-        //CountingOutputStream cout = new CountingOutputStream(new FileOutputStream(tempFile));
+        CountingOutputStream cout = new CountingOutputStream(new FileOutputStream(tempFile));
 
-
-//        try {
-//            byte[] b = new byte[1000000];
-//            int i = -1;
-//            while ((i = in.read(b)) != -1) {
-//                cout.write(b, 0, i);
-//            }
-//            cout.flush();
-//        } finally {
-//            IOUtils.closeQuietly(in);
-//            IOUtils.closeQuietly(cout);
-//        }
+        try {
+            byte[] b = new byte[1000000];
+            int i = -1;
+            while ((i = in.read(b)) != -1) {
+                cout.write(b, 0, i);
+            }
+            cout.flush();
+        } finally {
+            IOUtils.closeQuietly(in);
+            IOUtils.closeQuietly(cout);
+        }
 
         blob.getFile().delete();
 
@@ -137,10 +138,8 @@ public class FileContentCommand implements NuxeoCommand {
         content.setName(fileName);
         content.setFile(tempFile);
         content.setMimeType(blob.getMimeType());
-        content.setFileSize(document.getLong("common:size"));
+        content.setFileSize(cout.getCount());
         
-        
-
         return content;
 
         
