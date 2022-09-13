@@ -13,7 +13,8 @@ import fr.gouv.education.tribu.api.security.WsSecurityConfiguration;
  *
  */
 @SpringBootApplication
-@Import({WsConfiguration.class, WsSecurityConfiguration.class, DirectoryFrameworkConfiguration.class})
+@Import({WsConfiguration.class, WsDevConfiguration.class, WsProdConfiguration.class,
+        WsSecurityConfiguration.class, DirectoryFrameworkConfiguration.class})
 public class WsMain  extends SpringBootServletInitializer {
 
     public static void main(String[] args) {

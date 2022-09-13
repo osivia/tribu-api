@@ -47,8 +47,6 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  */
 @Configuration
 @ComponentScan(basePackages = { "fr.gouv.education.tribu.api" })
-@ImportResource({"file:${catalina.base}/conf/api-users.xml"})
-@PropertySource({"file:${catalina.base}/conf/application.properties"})
 @EnableSwagger2
 @EnableCaching
 public class WsConfiguration implements ApplicationContextAware {
@@ -109,27 +107,8 @@ public class WsConfiguration implements ApplicationContextAware {
 		return pool;
     }
     
-    
-    @Value("${catalina.home}")
-    private String catalinaHome;
-    
-    @Bean
-    public EhCacheManagerFactoryBean cacheFactoryBean() throws MalformedURLException {
-        EhCacheManagerFactoryBean ehCacheManagerFactoryBean = new EhCacheManagerFactoryBean();
-        ehCacheManagerFactoryBean.setConfigLocation(new UrlResource("file:"+catalinaHome+"/conf/ehcache-replicated.xml"));
-        return ehCacheManagerFactoryBean;
-    }
 
-    @Bean
-    public CacheManager cacheManager() {
-        EhCacheCacheManager cacheManager = new EhCacheCacheManager();
-        
-        EhCacheManagerFactoryBean cacheFactoryBean = applicationContext.getBean(EhCacheManagerFactoryBean.class);
-        
-        cacheManager.setCacheManager(cacheFactoryBean.getObject());
-        return cacheManager;
-    }
-    
+
 
 	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
 		this.applicationContext = applicationContext;

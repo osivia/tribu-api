@@ -32,6 +32,10 @@
 			<appender-ref ref="tribu-api-global" />
 		</logger>
 
+		<logger name="fr.gouv.education.tribu.api" level="INFO" additivity="false">
+			<appender-ref ref="tribu-api-global" />
+		</logger>
+
 		<appender name="tribu-api-stacks" class="ch.qos.logback.core.rolling.RollingFileAppender">
 			<file>${catalina.base}/logs/tribu-api_stacktraces.log </file>
 			<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
@@ -81,7 +85,7 @@
 		<logger name="tribu-tokens" level="INFO" additivity="false">
 			<appender-ref ref="tribu-tokens" />
 		</logger>
-		
+
 
 	</springProfile>
 </configuration>
